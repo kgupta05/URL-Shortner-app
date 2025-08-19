@@ -1,11 +1,11 @@
-name: CI/CD for Flask App
+name: Deploy Flask App to EC2
 
 on:
   push:
     branches: ["main"]
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,3 +27,15 @@ jobs:
           context: .
           push: true
           tags: abdraheem98/my-flask-app:latest
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull abdraheem98/my-flask-app:latest
+            docker stop flask-app || true
+            docker rm flask-app || true
+            docker run -d -p 80:5000 --name flask-app abdraheem98/my-flask-app:latest
