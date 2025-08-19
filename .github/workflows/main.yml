@@ -45,7 +45,7 @@ jobs:
           pip install pytest   # Ensure pytest is available
 
       - name: Run pytest
-        run: pytest
+        run: pytest tests/
 
   # -------------------
   # 3. Docker Build & Push
