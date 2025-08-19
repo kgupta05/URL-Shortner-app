@@ -57,6 +57,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker
     steps:
+      - name: Login to Dockerhub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Deploy over ssh
         uses: appleboy/ssh-action@v1
         with:
