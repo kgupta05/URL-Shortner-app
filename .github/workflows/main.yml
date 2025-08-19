@@ -1,4 +1,4 @@
-name: urlapp
+name: urlapp //lab1-build
 on:
   push:
     branches: ["main"]
