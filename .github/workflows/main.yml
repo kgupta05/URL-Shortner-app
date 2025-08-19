@@ -5,9 +5,53 @@ on:
     branches: ["main"]
 
 jobs:
+  # -------------------
+  # Stage 1: Build
+  # -------------------
   build:
-    name: Build Docker Image
+    name: Build Stage
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+  # -------------------
+  # Stage 2: Test
+  # -------------------
+  test:
+    name: Test Stage
+    runs-on: ubuntu-latest
+    needs: build   # wait for build stage
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: pytest
+
+  # -------------------
+  # Stage 3: Docker Build & Push
+  # -------------------
+  docker:
+    name: Docker Stage
+    runs-on: ubuntu-latest
+    needs: test   # wait for test stage
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,10 +72,13 @@ jobs:
           push: true
           tags: abdraheem98/my-flask-app:latest
 
+  # -------------------
+  # Stage 4: Deploy
+  # -------------------
   deploy:
-    name: Deploy to EC2
+    name: Deploy Stage
     runs-on: ubuntu-latest
-    needs: build   # 🔥 ensures deploy waits for build to finish
+    needs: docker   # wait for docker stage
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
